@@ -300,11 +300,68 @@ stage_6:
     mov ax, 0x0012
     int 0x10
 
-    ; 処理の終了
-    jmp $
+    ; 次のステージへ
+    jmp stage_7
 
 .s0:  db "6th stage...", 0x0A, 0x0D
       db "[Push SPACE key to protect mode...]", 0x0A, 0x0D, 0
+
+; セグメントディスクリプタ
+ALIGN 4, db 0
+GDT:    dq 0x00_0_0_0_0_000000_0000         ; NULL
+.cs:    dq 0x00_C_F_9_A_000000_FFFF         ; CODE 4G
+.ds:    dq 0x00_C_F_9_2_000000_FFFF         ; DATA 4G
+.gdt_end:
+
+; CS/DSの開始アドレス
+SEL_CODE    equ .cs - GDT       ; コード用のセレクタ
+SEL_DATA    equ .ds - GDT       ; データ用のセレクタ
+
+; GDT
+GDTR:   dw GDT.gdt_end - GDT - 1  ; Descriptor Tableのリミット(サイズ)
+        dd GDT                    ; Descriptor Tableのアドレス
+
+; 割り込みDT(今回は割り込み禁止のみ)
+IDTR:   dw  0   ; IDTのリミット
+        dd  0   ; IDTのアドレス
+
+stage_7:
+    cli     ; 割り込み禁止
+
+    lgdt [GDTR]     ; Global Descriptor Tableのロードする
+    lidt [IDTR]     ; 割り込み Descriptor Tableのロード
+
+    ; プロテクトモードに移行していく
+    mov eax, cr0    ; cr0をeaxに入れる
+    or ax, 1        ; CR0のPEビット(1ビット目)を1にしたデータ
+    mov cr0, eax    ; CR0に↑を書き込む
+
+    jmp $ + 2       ; 先読みをクリア
+
+    ; セグメント間のジャンプ
+[BITS 32]
+    DB 0x66         ; オペランドサイズオーバーライドプレフィックス
+    jmp SEL_CODE:CODE_32
+
+; 32Bitコードの開始
+CODE_32:
+    ; セレクタの初期化
+    mov ax, SEL_DATA
+    mov ds, ax
+    mov es, ax
+    mov fs, ax
+    mov gs, ax
+    mov ss, ax
+
+    ; カーネル部分をコピー
+    mov ecx, (KERNEL_SIZE) / 4 ; 4バイト単位でコピー
+    mov esi, BOOT_END       ; ESI=カーネル部分
+    mov edi, KERNEL_LOAD    ; EDI=上位メモリ
+    cld                     ; EDIにESIを書き込む
+    rep movsd
+
+    ; カーネル処理に移行
+    jmp KERNEL_LOAD
 
     ; パディングは8k Byte
     times BOOT_SIZE - ($ - $$) db 0
