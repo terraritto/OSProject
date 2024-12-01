@@ -123,3 +123,46 @@ vram_font_copy:
     pop ebp
 
     ret
+
+vram_bit_copy:
+    ; スタックフレームの構築
+    push ebp
+    mov ebp, esp
+
+    ; レジスタを保存
+    push eax
+    push ebx
+    push edi
+
+    ; マスクデータの作成
+    mov edi, [ebp + 12] ; VRAMアドレス
+    movzx eax, byte [ebp + 16] ; プレーン
+    movzx ebx, word [ebp + 20] ; 描画する色
+
+    ; 背景色とカラープレーンが一致->0xFF そうでないなら 0x00
+    test bl, al ; 0なら1,それ以外なら0
+    setz bl ; DH = test ? 0x01 : 0x00
+    dec bl ; 0xFFと0x00に変換
+
+    ; 出力ビットパターン(00010000的な感じだったら4桁目のもの)
+    mov al, [ebp + 8]
+    mov ah, al
+    not ah ; マスクを作成(11101111のようにマスクされるはず)
+    ; ah=11101111 al=00010000
+
+    and ah, [edi]   ; 現在の値と出力ビットパターンのマスクを&しておく
+    ; 01101110なら01101110 これで今入力されてる位置のビットを確定
+    and al, bl      ; 現在のビットのものを確定
+    or al, ah       ; orで今の値と塗りたいbitを立てる
+    mov [edi], al   ; 書き込み
+
+    ; レジスタ復帰
+    pop edi
+    pop ebx
+    pop eax
+
+    ; スタックフレームの破棄
+    mov esp, ebp
+    pop ebp
+
+    ret
