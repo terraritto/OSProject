@@ -61,7 +61,7 @@ draw_pixel:
     ret
 
 .s0:    db '        ', 0
-.t0     dw 0x0000, 0x0800
+.t0:    dw 0x0000, 0x0800
         dw 0x0100, 0x0900
         dw 0x0200, 0x0A00
         dw 0x0300, 0x0B00
