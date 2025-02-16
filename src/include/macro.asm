@@ -13,6 +13,22 @@
     %endif
 %endmacro
 
+; 割り込みディスクリプタに登録を行う
+%macro  set_vect 1-*.nolist ; 全部の引数を取る
+    push eax
+    push edi
+
+    mov edi, VECT_BASE + (%1 * 8) ; 第一引数で書き込み位置を解くデイ
+    mov eax, %2 ; 書き込みアドレス
+
+    mov [edi + 0], ax ; [15:0]のアドレス
+    shr eax, 16 ; ずらして後半に
+    mov [edi + 6], ax ; [31:16]のアドレス
+
+    pop edi
+    pop eax
+%endmacro
+
 struc drive
     .no     resw 1 ; ドライブ番号
     .cyln   resw 1 ; シリンダ
