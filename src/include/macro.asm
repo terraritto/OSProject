@@ -29,6 +29,12 @@
     pop eax
 %endmacro
 
+; ポート出力命令
+%macro outp 2
+    mov al, %2
+    out %1, al
+%endmacro
+
 struc drive
     .no     resw 1 ; ドライブ番号
     .cyln   resw 1 ; シリンダ
