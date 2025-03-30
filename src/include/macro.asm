@@ -41,3 +41,13 @@ struc drive
     .head   resw 1 ; ヘッド
     .sect   resw 1 ; セクタ
 endstruc
+
+; リングバッファ
+%define RING_ITEM_SIZE (1 << 4) ; 16のこと、リングバッファのサイズ
+%define RING_INDEX_MASK (RING_ITEM_SIZE - 1) ; 15は 0000 1111 となるので、そこでマスク
+
+struc ring_buff
+    .rp resd 1      ; 書き込み位置
+    .wp resd 1      ; 読み込み位置
+    .item resb RING_ITEM_SIZE ; バッファ
+endstruc
