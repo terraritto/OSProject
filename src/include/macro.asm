@@ -18,7 +18,7 @@
     push eax
     push edi
 
-    mov edi, VECT_BASE + (%1 * 8) ; 第一引数で書き込み位置を解くデイ
+    mov edi, VECT_BASE + (%1 * 8) ; 第一引数で書き込み位置を特定
     mov eax, %2 ; 書き込みアドレス
 
     mov [edi + 0], ax ; [15:0]のアドレス
@@ -33,6 +33,27 @@
 %macro outp 2
     mov al, %2
     out %1, al
+%endmacro
+
+; descriptorにリミットとベースを設定
+%macro set_desc 2-*
+    push eax
+    push edi
+
+    mov edi, %1 ; ディスクリプタアドレス
+    mov eax, %2 ; ベースアドレス
+
+    %if 3 == %0 ; 3つめの変数がある？
+        mov [edi + 0], %3 ; リミットを設定
+    %endif
+
+    mov [edi + 2], ax ; ベース[15:0]
+    shr eax, 16 ; 右ずらし
+    mov [edi + 4], al ; ベース[23:16]
+    mov [edi + 7], ah ; ベース[31:24]
+
+    pop edi
+    pop eax
 %endmacro
 
 struc drive

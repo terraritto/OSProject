@@ -17,6 +17,23 @@ kernel:
     add eax, ebx ; オフセットを足して確定
     mov [FONT_ADR], eax ; 保持する
 
+    ; TSS ディスクリプタの設定
+    set_desc GDT.tss_0, TSS_0   ; TSS0のディスクリプタアドレスのベースアドレスを設定
+    set_desc GDT.tss_1, TSS_1   ; TSS1のディスクリプタアドレスのベースアドレスを設定
+
+    ; LDTの設定
+    set_desc GDT.ldt, LDT, word LDT_LIMIT
+
+    ; GDTをロード(BOOTでやったが、ここで再設定する)
+    lgdt [GDTR]
+    
+    ; タスク0用のスタックを設定(カーネル用)
+    mov esp, SP_TASK_0
+
+    ; タスクレジスタの初期化
+    mov ax, SS_TASK_0   ; タスク0のスタックセグメント
+    ltr ax ; セグメントセレクタをタスク0に設定
+
     ; 割り込みベクタの初期化
     cdecl init_int
     cdecl init_pic
@@ -70,6 +87,9 @@ kernel:
     cdecl draw_rect, 400, 250, 150, 150, 0x05
     cdecl draw_rect, 350, 400, 300, 100, 0x06
 
+    ; タスクの呼び出し
+    call SS_TASK_1:0
+
 .10L:
     ; 時間の描画をするだけ
     mov eax, [RTC_TIME]
@@ -97,6 +117,11 @@ ALIGN 4, db 0
 FONT_ADR: dd 0
 RTC_TIME: dd 0
 
+; タスク
+%include "descriptor.asm"
+%include "modules/int_timer.asm"
+%include "tasks/task_1.asm"
+
 ; モジュール
 %include "../modules/protect/vga.asm"
 %include "../modules/protect/draw_char.asm"
@@ -115,7 +140,6 @@ RTC_TIME: dd 0
 %include "../modules/protect/int_keyboard.asm"
 %include "../modules/protect/ring_buff.asm"
 
-%include "modules/int_timer.asm"
 %include "../modules/protect/timer.asm"
 %include "../modules/protect/draw_rotation_bar.asm"
 
