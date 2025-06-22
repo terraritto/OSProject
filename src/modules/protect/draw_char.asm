@@ -11,6 +11,10 @@ draw_char:
     push esi
     push edi
 
+%ifdef USE_TEST_AND_SET
+    cdecl test_and_set, IN_USE
+%endif
+
     ; コピー元フォントアドレスを設定
     movzx esi, byte [ebp + 20] ; 文字を格納
     shl esi, 4 ; 32bitへ
@@ -42,6 +46,10 @@ draw_char:
     cdecl vram_font_copy, esi, edi, 0x01, ebx ; フォント書き込み(青)
 
 
+%ifdef USE_TEST_AND_SET
+    mov [IN_USE], dword 0
+%endif
+
     ; レジスタ復帰
     pop edi
     pop esi
@@ -55,3 +63,6 @@ draw_char:
     pop ebp
 
     ret
+
+ALIGN 4, db 0
+IN_USE: dd 0

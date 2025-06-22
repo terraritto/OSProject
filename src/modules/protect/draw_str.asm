@@ -24,7 +24,11 @@ draw_str:
     je .10E
 
     ; 描画！
+%ifdef USE_SYSTEM_CALL
+    int 0x81    ; トラップゲートで処理
+%else
     cdecl draw_char, ecx, edx, ebx, eax
+%endif
 
     ; 次の文字へ
     inc ecx ; 列方向にずらす

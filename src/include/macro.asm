@@ -21,6 +21,10 @@
     mov edi, VECT_BASE + (%1 * 8) ; 第一引数で書き込み位置を特定
     mov eax, %2 ; 書き込みアドレス
 
+    %if 3 == %0
+        mov [edi + 4], %3
+    %endif
+
     mov [edi + 0], ax ; [15:0]のアドレス
     shr eax, 16 ; ずらして後半に
     mov [edi + 6], ax ; [31:16]のアドレス
@@ -51,6 +55,22 @@
     shr eax, 16 ; 右ずらし
     mov [edi + 4], al ; ベース[23:16]
     mov [edi + 7], ah ; ベース[31:24]
+
+    pop edi
+    pop eax
+%endmacro
+
+; descriptorにベースを設定
+%macro set_gate 2-*
+    push eax
+    push edi
+
+    mov edi, %1 ; ディスクリプタアドレス
+    mov eax, %2 ; ベースアドレス
+
+    mov [edi + 0], ax ; ベース[15:0]
+    shr eax, 16 ; 右ずらし
+    mov [edi + 6], al ; ベース[31:16]
 
     pop edi
     pop eax
