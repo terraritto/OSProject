@@ -22,3 +22,4 @@ STACK_SIZE equ 1024 ; 1タスクのスタックサイズ
 
 SP_TASK_0 equ STACK_BASE + (STACK_SIZE * 1) ; タスク0のスタックポインタの初期値
 SP_TASK_1 equ STACK_BASE + (STACK_SIZE * 2) ; タスク1のスタックポインタの初期値
+SP_TASK_2 equ STACK_BASE + (STACK_SIZE * 3) ; タスク2のスタックポインタの初期値
