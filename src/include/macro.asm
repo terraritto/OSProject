@@ -92,3 +92,22 @@ struc ring_buff
     .wp resd 1      ; 読み込み位置
     .item resb RING_ITEM_SIZE ; バッファ
 endstruc
+
+struc rose
+    .x0 resd 1              ; 左上座標X
+    .y0 resd 1              ; 左上座標Y
+    .x1 resd 1              ; 右下座標X
+    .y1 resd 1              ; 右下座標Y
+
+    .n resd 1               ; 変数:n
+    .d resd 1               ; 変数:d
+
+    .color_x resd 1         ; X軸の色
+    .color_y resd 1         ; Y軸の色
+    .color_z resd 1         ; 枠の色
+    .color_s resd 1         ; 文字の色
+    .color_f resd 1         ; グラフ描画色
+    .color_b resd 1         ; グラフ消去色
+
+    .title resb 16          ; タイトル
+endstruc
