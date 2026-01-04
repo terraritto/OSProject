@@ -25,7 +25,10 @@ kernel:
     set_desc GDT.tss_0, TSS_0   ; TSS0のディスクリプタアドレスのベースアドレスを設定
     set_desc GDT.tss_1, TSS_1   ; TSS1のディスクリプタアドレスのベースアドレスを設定
     set_desc GDT.tss_2, TSS_2   ; TSS2のディスクリプタアドレスのベースアドレスを設定
-    set_desc GDT.tss_3, TSS_3   ; TSS2のディスクリプタアドレスのベースアドレスを設定
+    set_desc GDT.tss_3, TSS_3   ; TSS3のディスクリプタアドレスのベースアドレスを設定
+    set_desc GDT.tss_4, TSS_4   ; TSS4のディスクリプタアドレスのベースアドレスを設定
+    set_desc GDT.tss_5, TSS_5   ; TSS5のディスクリプタアドレスのベースアドレスを設定
+    set_desc GDT.tss_6, TSS_6   ; TSS6のディスクリプタアドレスのベースアドレスを設定
     
     ; コールゲートの設定
     set_gate GDT.call_gate, call_gate
